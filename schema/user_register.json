@@ -1,0 +1,60 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/user_register.json",
+    "type": "object",
+    "title": "User Registration Schema",
+    "required": [
+        "fullname",
+        "email",
+        "username",
+        "password",
+        "re_password"
+    ],
+    "properties": {
+        "fullname": {
+            "title": "A string value",
+            "default": "",
+            "minLength": 4,
+            "pattern": "^(.*)$",
+            "examples": [
+                "progre"
+            ],
+            "$id": "#/properties/fullname",
+            "type": "string"
+        },
+        "username": {
+            "title": "A string value",
+            "default": "",
+            "minLength": 4,
+            "pattern": "^(.*)$",
+            "examples": [
+                "progre"
+            ],
+            "$id": "#/properties/username",
+            "type": "string"
+        },
+        "password": {
+            "title": "A string value",
+            "default": "",
+            "minLength": 6,
+            "pattern": "^(.*)$",
+            "examples": [
+                "progre"
+            ],
+            "$id": "#/properties/password",
+            "type": "string"
+        },
+        "re_password": {
+            "title": "A string value",
+            "default": "",
+            "minLength": 6,
+            "pattern": "^(.*)$",
+            "examples": [
+                "progre"
+            ],
+            "$id": "#/properties/re_password",
+            "type": "string"
+        }
+    }
+}

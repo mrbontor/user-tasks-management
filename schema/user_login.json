@@ -1,0 +1,35 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/user_login.json",
+    "type": "object",
+    "title": "User Login Schema",
+    "required": [
+        "username",
+        "password"
+    ],
+    "properties": {
+        "username": {
+            "title": "A string value",
+            "default": "",
+            "minLength": 4,
+            "pattern": "^(.*)$",
+            "examples": [
+                "mrbontor"
+            ],
+            "$id": "#/properties/username",
+            "type": "string"
+        },
+        "password": {
+            "title": "A string value",
+            "default": "",
+            "minLength": 6,
+            "pattern": "^(.*)$",
+            "examples": [
+                "mrbontor"
+            ],
+            "$id": "#/properties/password",
+            "type": "string"
+        }
+    }
+}
