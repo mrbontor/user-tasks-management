@@ -1,5 +1,5 @@
 module.exports = function(app) {
-    const user = require('../controllers');
+    const task = require('../controllers/task');
     const auth = require('../controllers/auth');
 
     app.route('/api/auth/register')
