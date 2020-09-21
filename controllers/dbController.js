@@ -7,10 +7,11 @@ const User = db.User
 function check_username(username) {
     return new Promise(function (resolve, reject) {
         var result = false
-        User.findOne({
+        User.findAll({
             where: {
                 username:username
-            }
+            },
+             attributes: ['id', 'username']
         })
         .then(function (data) {
             if (data !== null) result = true
@@ -18,7 +19,7 @@ function check_username(username) {
             resolve(result)
         })
         .catch(function (err) {
-            logging.error(`[check_username][ERR] >>>> ${JSON.stringify(err.stack)}`)
+            logging.error(`[check_username][err] >>>> ${JSON.stringify(err.stack)}`)
             if (err) reject(result)
         })
     })
@@ -28,10 +29,11 @@ function check_email(email) {
     return new Promise(function (resolve, reject) {
         var result = false
         User
-        .findOne({
+        .findAll({
             where: {
                 email:email
-            }
+            },
+            attributes: ['id', 'username'],
         })
         .then(function (data) {
             if (data !== null) result = true
@@ -39,7 +41,7 @@ function check_email(email) {
             resolve(result)
         })
         .catch(function (err) {
-            logging.error(`[check_email][ERR] >>>> ${JSON.stringify(err.stack)}`)
+            logging.error(`[check_email][err] >>>> ${JSON.stringify(err.stack)}`)
             if (err) reject(result)
         })
     })
@@ -53,11 +55,10 @@ function get_user(username) {
             }
         })
         .then(function (data) {
-            logging.info(`[get_user] >>>> ${JSON.stringify(data)}`)
             if (data !== null) resolve(data)
         })
         .catch(function (err) {
-            logging.error(`[get_user][ERR] >>>> ${JSON.stringify(err.stack)}`)
+            logging.error(`[get_user][err] >>>> ${JSON.stringify(err.stack)}`)
             if (err) reject(false)
         })
     })
@@ -68,10 +69,26 @@ function create_user(data) {
         User.create(data)
         .then(result => {
             resolve(result.toJSON());
-            logging.debug(`[DEBUG][MYSQL][OUT][CREATE][USER] ${JSON.stringify(result)} `);
+            logging.debug(`[create_user] ${JSON.stringify(result)} `);
         })
         .catch(err => {
-            logging.error(`[ERROR][MYSQL][OUT][CREATE][USER] ${JSON.stringify(err)} `);
+            logging.error(`[create_user][err] ${JSON.stringify(err)} `);
+            if(err) reject(false)
+        });
+    });
+}
+
+function update_user(data, clause) {
+    return new Promise(function (resolve, reject) {
+        let result = false
+        User.update(data, {where: clause})
+        .then(rest => {
+            if (rest == 1) result = true
+            resolve(result);
+            logging.debug(`update_user] ${JSON.stringify(result)} `);
+        })
+        .catch(err => {
+            logging.error(`[update_user][err] ${JSON.stringify(err)} `);
             if(err) reject(false)
         });
     });
@@ -82,5 +99,6 @@ module.exports = {
     checkUsername: check_username,
     checkEmail: check_email,
     getUser: get_user,
-    createUser: create_user
+    createUser: create_user,
+    updateUser: update_user
 };

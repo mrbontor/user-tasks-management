@@ -3,7 +3,9 @@
 var crypto = require('crypto');
 const db = require('./dbController')
 const logging = require('../libs/logging')
+const iniParser = require('../libs/iniParser')
 
+let config = iniParser.get()
 /**
  * generates random string of characters i.e salt
  * @function
@@ -26,7 +28,7 @@ function makePassword(password) {
     let salt = genRandomString(16); /** Gives us salt of length 16 */
 
     // Hashing user's salt and password with 1000 iterations, 64 length and sha512 digest
-    let hash = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`)
+    let hash = crypto.pbkdf2Sync(password, salt, 1000, 64, config.credential.method).toString(`hex`)
     return {
         salt: salt,
         hash: hash
@@ -34,7 +36,7 @@ function makePassword(password) {
 }
 
 function validatePassword(password, salt, hashed) {
-    let hash = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
+    let hash = crypto.pbkdf2Sync(password, salt, 1000, 64, config.credential.method).toString(`hex`);
     return hash === hashed;
 };
 

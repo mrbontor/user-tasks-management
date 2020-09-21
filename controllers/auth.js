@@ -5,6 +5,7 @@ const logging = require('../libs/logging')
 const util = require('../libs/utils')
 const db = require('./dbController')
 const user_util = require('./user_utility');
+var jwt = require('jsonwebtoken');
 
 const userRegister    = JSON.parse(fs.readFileSync('./schema/user_register.json'))
 const userLogin    = JSON.parse(fs.readFileSync('./schema/user_login.json'))
@@ -24,74 +25,115 @@ const FAILED              = 400
 async function register(req, res) {
     let respons = {status: false, message: "Failed"}
     try {
-        let isRequestValid = await createRequesAuth(req.body, 'register')
-        logging.debug(`[isRequestValid] >>>> TRUE =>FALSE || FALSE => TRUE ${JSON.stringify(isRequestValid)}`)
+        const {body} = req
 
+        //validate user request
+        let isRequestValid = await createRequesAuth(body, 'register')
+        logging.debug(`[isRequestValid] >>>> TRUE =>FALSE || FALSE => TRUE ${JSON.stringify(isRequestValid)}`)
+        //return error validation;
         if (isRequestValid.message){
             respons.errors = isRequestValid.message.message
             return res.status(200).send(respons);
         }
 
-        let isExist = await user_util.checkRegister(req.body)
+        let isExist = await user_util.checkRegister(body)
         logging.debug(`[isExist] >>>> ${JSON.stringify(isExist)}`)
         if (!isExist.status) {
             respons.message = isExist.message
             return res.status(200).send(respons);
         }
 
-        let _request = formatRequest(req.body)
+        let _request = formatRequest(body)
         logging.debug(`[Payload] >>>> ${JSON.stringify(_request)}`)
 
         delete _request.password
         let storeUser = await db.createUser(_request)
-        logging.debug(`[storeTrx] >>>> ${JSON.stringify(storeUser)}`)
+        logging.debug(`[storeUser] >>>> ${JSON.stringify(storeUser)}`)
 
-        respons = {status: true, message: "Success", data: storeUser, e: _request}
+        respons = {status: true, message: "Success", data: storeUser}
         res.status(200).send(respons)
     } catch (e) {
-        logging.debug(`[register][ERR]   >>>>> ${e.stack}`)
+        logging.debug(`[register][err]   >>>>> ${e.stack}`)
         res.status(400).send(respons)
     }
 }
 
 //user login
-async function register(req, res) {
+async function login(req, res) {
     let respons = {status: false, message: "Failed"}
     try {
-        let isRequestValid = await createRequesAuth(req.body)
-        logging.debug(`[isRequestValid] >>>> TRUE =>FALSE || FALSE => TRUE ${JSON.stringify(isRequestValid)}`)
+        const {body} = req
 
+        //validate user request
+        let isRequestValid = await createRequesAuth(body, 'login')
+        logging.debug(`[isRequestValid] >>>> TRUE =>FALSE || FALSE => TRUE ${JSON.stringify(isRequestValid)}`)
+        //return error validation;
         if (isRequestValid.message){
             respons.errors = isRequestValid.message.message
             return res.status(200).send(respons);
         }
 
-        let isExist = await user_util.checkRegister(req.body)
-        logging.debug(`[isExist] >>>> ${JSON.stringify(isExist)}`)
-        if (!isExist.status) {
-            respons.message = isExist.message
-            return res.status(200).send(respons);
+        //checks user is exist
+        let getUser = await db.getUser(body.username)
+        logging.info(`[checkUsername] >>>> ${JSON.stringify(getUser)}`)
+
+        if(!getUser || getUser === null) {
+            respons.message = "User not found"
+            return res.status(404).send(respons);
         }
 
-        let _request = formatRequest(req.body)
-        logging.debug(`[Payload] >>>> ${JSON.stringify(_request)}`)
+        //validate password hashed
+        let checkPassword = user_util.validatePassword(body.password, getUser.salt, getUser.hash)
+        if (!checkPassword) {
+            respons.message = "Invalid Password"
+            return res.status(401).send(respons);
+        }
 
-        delete _request.password
-        let storeUser = await db.createUser(_request)
-        logging.debug(`[storeTrx] >>>> ${JSON.stringify(storeUser)}`)
+        let preDate = {
+            id: getUser.id,
+            name: getUser.name,
+            username: getUser.username,
+            email: getUser.email,
+            status: getUser.status
+        }
+        //generate token for authentication
+        let token = jwt.sign(preDate, config.credential.secret, {
+            expiresIn: 86400 // expires in 24 hours
+        });
 
-        respons = {status: true, message: "Success", data: storeUser, e: _request}
+        // storeToken
+        let storeToken = await db.updateUser({token: token}, {id: getUser.id})
+        if (!storeToken) {
+            respons.message = "Something went wrong"
+            return res.status(400).send(respons);
+        }
+
+        respons = {status: true, message: "Success", token: token}
         res.status(200).send(respons)
     } catch (e) {
-        logging.debug(`[register][ERR]   >>>>> ${e.stack}`)
+        logging.debug(`[login][err]   >>>>> ${e.stack}`)
         res.status(400).send(respons)
     }
 }
 
-function validate_(data) {
-    let result = false
-    if (data.password !== data.re_password) {
-        return result;
+//user login
+async function profile(req, res) {
+    let authHeader = req.headers.authorization;
+    let respons = {status: false, message: "Failed"}
+    try {
+        let token = authHeader.split(' ')[1];
+        logging.info(`[token] >>>> ${JSON.stringify(token)}`);
+        data = jwt.verify(token, config.credential.secret);
+        logging.debug(`[data] >>>> ${JSON.stringify(data)}`)
+
+        let user = await db.getUser(data.username)
+        logging.info(`[checkUsername] >>>> ${JSON.stringify(user)}`)
+
+        respons = {status: true, message: "Success", data: data}
+        res.status(200).send(respons)
+    } catch (e) {
+        logging.debug(`[login][err]   >>>>> ${e.stack}`)
+        res.status(400).send(respons)
     }
 }
 
@@ -134,5 +176,7 @@ async function createRequesAuth(request, type) {
 
 
 module.exports = {
-    register
+    register,
+    login,
+    profile
 };
