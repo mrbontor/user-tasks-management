@@ -34,6 +34,17 @@
             "$id": "#/properties/username",
             "type": "string"
         },
+        "email": {
+            "title": "A string value",
+            "default": "",
+            "minLength": 4,
+            "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+            "examples": [
+                "progre"
+            ],
+            "$id": "#/properties/email",
+            "type": "string"
+        },
         "password": {
             "title": "A string value",
             "default": "",

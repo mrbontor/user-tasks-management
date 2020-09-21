@@ -1,4 +1,6 @@
 'use strict';
+const util = require('../../libs/utils');
+
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         id: {
@@ -22,8 +24,18 @@ module.exports = (sequelize, DataTypes) => {
         hash: DataTypes.STRING,
         salt: DataTypes.STRING,
         token: DataTypes.STRING,
-        created_at: DataTypes.DATE,
-        updated_at: DataTypes.DATE,
+        created_at: {
+			type: DataTypes.DATE,
+			get(){
+				return util.formatDateStandard(this.getDataValue('created_at'), true)
+			}
+		},
+		updated_at: {
+			type: DataTypes.DATE,
+			get(){
+				return util.formatDateStandard(this.getDataValue('updated_at'), true)
+			}
+		},
         status: DataTypes.INTEGER
     }, {
         tableName: 'users', // oauth_users

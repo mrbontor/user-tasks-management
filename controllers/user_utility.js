@@ -4,6 +4,7 @@ var crypto = require('crypto');
 const db = require('./dbController')
 const logging = require('../libs/logging')
 const iniParser = require('../libs/iniParser')
+var jwt = require('jsonwebtoken');
 
 let config = iniParser.get()
 /**
@@ -82,9 +83,29 @@ async function checkRegister(data) {
     }
 }
 
+function getUserInfo(req) {
+    const authHeader = req.headers.authorization;
+    try {
+        if (!authHeader) return false;
+
+        let token = authHeader.split(' ')[1];
+        data = jwt.verify(token, config.credential.secret);
+        // let user = await db.getUser(data.username)
+        // logging.info(`[checkExistUser] >>>> ${JSON.stringify(user)}`)
+        //
+        // if(!user || user === null) return false;
+
+        return data;
+    } catch (e) {
+        logging.debug(`[getUserInfo] >>>> ${JSON.stringify(e.stack)}`)
+        return false
+    }
+}
+
 
 module.exports = {
     makePassword,
     validatePassword,
-    checkRegister
+    checkRegister,
+    getUserInfo
 };

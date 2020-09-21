@@ -31,6 +31,16 @@ function formatDateStandard(date, opt = false){
     return result
 }
 
+function formatTime(date, sec= '00'){
+    let a = new Date(date);
+
+    let hour = ("0" + a.getHours()).slice(-2)
+    let min = ("0" + a.getMinutes()).slice(-2)
+    sec = ("0" + a.getSeconds()).slice(-2)
+    let result = hour + ':' + min + ':' + sec
+    return result
+}
+
 function formatMontYear(date) {
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"]
 
@@ -45,7 +55,7 @@ function formatMontYear(date) {
   * @return {[array]}       [description]
  */
 function handleErrorValidation(array) {
-    return array.reduce((obj, item) => (obj['message'] = {field: item.dataPath, message: item.message}, obj) ,{});
+    return array.reduce((obj, item) => (obj['message'] = {field: item.dataPath, message: `${item.dataPath} ` +item.message}, obj) ,{});
 }
 
 //using internatiopnal standard phone number
@@ -60,9 +70,44 @@ function reformatPhoneNumber(phone) {
     return valid_phone
 }
 
+function convertDate(date){ //conver date into ISO 8601
+    var a = new Date(date);
+    // var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var year = a.getFullYear()
+    var month = ("0" + (a.getMonth() + 1)).slice(-2)
+    var date = ("0" + a.getDate()).slice(-2)
+    var hour = ("0" + a.getHours()).slice(-2)
+    var min = ("0" + a.getMinutes()).slice(-2)
+    var sec = ("0" + a.getSeconds()).slice(-2)
+    var time = year + '-' + month + '-' + date + ' ' + hour + ':' + min + ':' + sec ;
+    return time;
+}
+
+function switchDay(day) {
+    let now = new Date()
+    let todo = []
+    switch (day) {
+        case 'pagi':
+            todo[0] = convertDate(now.setHours(0, 0, 0))
+            todo[1] = convertDate(now.setHours(8, 0, 0))
+            break;
+        case 'siang':
+            todo[0] = convertDate(now.setHours(8, 0, 1))
+            todo[1] = convertDate(now.setHours(16, 0, 0))
+            break;
+        case 'malam':
+            todo[0] = convertDate(now.setHours(16, 0, 1))
+            todo[1] = convertDate(now.setHours(23, 59, 59))
+            break;
+    }
+    return todo
+}
+
 module.exports = {
     formatDateStandard,
+    formatTime,
     formatMontYear,
     handleErrorValidation,
-    reformatPhoneNumber
+    reformatPhoneNumber,
+    switchDay
 }

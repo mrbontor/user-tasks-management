@@ -31,23 +31,39 @@ async function register(req, res) {
         //return error validation;
         if (isRequestValid.message){
             respons.errors = isRequestValid.message.message
-            return res.status(200).send(respons);
+            return res.status(400).send(respons);
+        }
+        //check password and current password
+        if (body.password !== body.re_password) {
+            res.message = "Password didn't match"
+            return res.status(400).send(respons);
+        }
+        //check isExist username
+        let checkUsername = await db.checkUsername(body.username)
+        logging.info(`[checkUsername] >>>> ${JSON.stringify(checkUsername)}`)
+        if(checkUsername) {
+            respons.message = "Username already taken"
+            return res.status(400).send(respons);
+        }
+        //check isExist email
+        let checkEmail = await db.checkEmail(body.email)
+        logging.info(`[checkEmail] >>>> ${JSON.stringify(checkEmail)}`)
+        if (checkEmail) {
+            respons.message = "Email already used"
+            return res.status(400).send(respons);
         }
 
-        //check if is exist
-        let isExist = await user_util.checkRegister(body)
-        logging.debug(`[isExist] >>>> ${JSON.stringify(isExist)}`)
-        if (!isExist.status) {
-            respons.message = isExist.message
-            return res.status(200).send(respons);
-        }
-
-        let _request = formatRequest(body)
+        let _request = formatRequestRegister(body)
         logging.debug(`[Payload] >>>> ${JSON.stringify(_request)}`)
 
         delete _request.password
+        //store data user
         let storeUser = await db.createUser(_request)
         logging.debug(`[storeUser] >>>> ${JSON.stringify(storeUser)}`)
+        if (!storeUser) {
+            respons.message = "Something went wrong"
+            return res.status(400).send(respons);
+        }
 
         respons = {status: true, message: "Success", data: storeUser}
         res.status(200).send(respons)
@@ -69,7 +85,7 @@ async function login(req, res) {
         //return error validation;
         if (isRequestValid.message){
             respons.errors = isRequestValid.message.message
-            return res.status(200).send(respons);
+            return res.status(400).send(respons);
         }
 
         //checks user is exist
@@ -97,7 +113,7 @@ async function login(req, res) {
         }
         //generate token for authentication
         let token = jwt.sign(preDate, config.credential.secret, {
-            expiresIn: 86400 // expires in 24 hours
+            expiresIn: config.credential.expired // expires in n hours
         });
 
         // storeToken

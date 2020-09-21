@@ -35,7 +35,7 @@ async function verifyToken(req, res, next) {
     } catch (e) {
         logging.debug(`[verifyToken] >>>> ${JSON.stringify(e.stack)}`)
 
-        return res.status(500).json({message: "Internal Server Error"});
+        return res.status(500).json({message: "Authentication failed"});
     }
 }
 

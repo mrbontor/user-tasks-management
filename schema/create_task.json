@@ -1,0 +1,106 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://example.com/create_task.json",
+	"type": "object",
+	"title": "The Root Schema",
+	"required": [
+		"name",
+		"description",
+		"user_id",
+		"start_at",
+		"is_forever",
+		"end_at"
+	],
+	"properties": {
+		"name": {
+			"title": "A string value",
+			"default": "",
+			"pattern": "^(.*)$",
+			"examples": [
+				"mrbontor task"
+			],
+			"$id": "#/properties/name",
+			"type": "string"
+		},
+		"description": {
+			"title": "A string value",
+			"default": "",
+			"pattern": "^(.*)$",
+			"examples": [
+				"mrbontor"
+			],
+			"$id": "#/properties/description",
+			"type": "string"
+		},
+		"start_at": {
+			"title": "A Date value",
+			"default": "",
+			"pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]$",
+			"examples": [
+				"2020-09-21 10:24:27"
+			],
+			"$id": "#/properties/start_at",
+			"type": "string"
+		},
+		"end_at": {
+			"title": "A Date value",
+			"default": "",
+			"pattern": "^(.*)$",
+			"examples": [
+				"2020-09-21 10:24:27"
+			],
+			"$id": "#/properties/end_at",
+			"type": "string"
+		},
+		"is_forever": {
+			"title": "A number value",
+			"default": 0,
+			"examples": [
+				"0"
+			],
+			"$id": "#/properties/is_forever",
+			"type": "number"
+		},
+		"data_forever": {
+			"title": "An object value",
+			"required": [
+				"description"
+			],
+			"properties": {
+				"at_time": {
+					"title": "A string value",
+					"default": "",
+					"pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]$",
+					"examples": [
+						"2020-09-21 10:24:27"
+					],
+					"$id": "#/properties/data_forever/properties/at_time",
+					"type": "string"
+				},
+				"at_date": {
+					"title": "A Date value",
+					"default": "",
+					"pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]$",
+					"examples": [
+						"2020-09-21 10:24:27"
+					],
+					"$id": "#/properties/data_forever/properties/at_date",
+					"type": "string"
+				},
+				"description": {
+					"title": "A string value",
+					"default": "",
+					"pattern": "^(.*)$",
+					"examples": [
+						"Parents’ anniversary on 25 feb"
+					],
+					"$id": "#/properties/data_forever/properties/description",
+					"type": "string"
+				}
+			},
+			"$id": "#/properties/data_forever",
+			"type": "object"
+		}
+	}
+}

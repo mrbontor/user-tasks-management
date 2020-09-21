@@ -1,4 +1,6 @@
 'use strict';
+const util = require('../../libs/utils');
+
 module.exports = (sequelize, DataTypes) => {
     const Task = sequelize.define('Task', {
         id: {
@@ -11,10 +13,45 @@ module.exports = (sequelize, DataTypes) => {
 		name: DataTypes.STRING,
         description: DataTypes.STRING,
         user_id: DataTypes.INTEGER,
-        at_time: DataTypes.DATE,
-        created_at: DataTypes.DATE,
-        updated_at: DataTypes.DATE,
-        status: DataTypes.INTEGER
+		start_time: DataTypes.TIME,
+		end_time: DataTypes.TIME,
+		start_at: {
+			type: DataTypes.DATE,
+			get(){
+				return util.formatDateStandard(this.getDataValue('start_at'), true)
+			}
+		},
+		end_at: {
+			type: DataTypes.DATE,
+			get(){
+				return util.formatDateStandard(this.getDataValue('end_at'), true)
+			}
+		},
+		created_at: {
+			type: DataTypes.DATE,
+			get(){
+				return util.formatDateStandard(this.getDataValue('created_at'), true)
+			}
+		},
+		forever: DataTypes.TINYINT,
+		date_forever: {
+			type: DataTypes.TEXT,
+			// get() {
+			// 	let val = {}
+			// 	if (this.getDataValue("date_forever") != '') val = JSON.parse(JSON.stringify(this.getDataValue("date_forever")))
+			// 	return val;
+			// },
+			set(value) {
+				return this.setDataValue("date_forever", JSON.stringify(value))
+			}
+		},
+		updated_at: {
+			type: DataTypes.DATE,
+			get(){
+				return util.formatDateStandard(this.getDataValue('updated_at'), true)
+			}
+		},
+        status: DataTypes.TINYINT
     }, {
         tableName: 'tasks',
         timestamps: false,
@@ -22,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Task.associate =  function associate(models) {
-        Task.belongsTo(models.Task, {
+        Task.belongsTo(models.User, {
             foreignKey: 'user_id'
         })
     }
