@@ -17,7 +17,7 @@ sequelize = new Sequelize(config.database, config.username, config.password, Obj
       idle: 30000,
       acquire: 60000,
     },
-    logging: (log) => { logging.debug(`[MYSQL] ${log}`) }
+    // logging: (log) => { logging.debug(`[MYSQL] ${log}`) }
   }));
 
 fs

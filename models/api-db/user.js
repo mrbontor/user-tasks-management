@@ -21,20 +21,21 @@ module.exports = (sequelize, DataTypes) => {
         },
         hash: DataTypes.STRING,
         salt: DataTypes.STRING,
+        token: DataTypes.STRING,
         created_at: DataTypes.DATE,
         updated_at: DataTypes.DATE,
-        status: DataTypes.STRING
+        status: DataTypes.INTEGER
     }, {
         tableName: 'users', // oauth_users
         timestamps: false,
         underscored: true,
     });
 
-    // User.associate =  function associate(models) {
-    //     User.hasMany(models.Transaksi, {
-    //         foreignKey: 'user_id',
-    //         allowNull: false
-    //     })
-    // }
+    User.associate =  function associate(models) {
+        User.hasMany(models.Task, {
+            foreignKey: 'user_id',
+            allowNull: false
+        })
+    }
     return User;
 }

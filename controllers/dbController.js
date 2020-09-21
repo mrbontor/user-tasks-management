@@ -3,6 +3,7 @@ const logging = require('../libs/logging')
 const db = require('../models/api-db')
 
 const User = db.User
+const Task = db.Task
 
 function check_username(username) {
     return new Promise(function (resolve, reject) {

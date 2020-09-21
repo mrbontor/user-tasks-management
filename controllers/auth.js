@@ -18,8 +18,6 @@ const ajv = new Ajv({
     loopRequired: Infinity
 }); // options can be passed, e.g. {allErrors: true}
 
-const SUCCESS             = 200
-const FAILED              = 400
 
 //user Registration
 async function register(req, res) {
@@ -36,6 +34,7 @@ async function register(req, res) {
             return res.status(200).send(respons);
         }
 
+        //check if is exist
         let isExist = await user_util.checkRegister(body)
         logging.debug(`[isExist] >>>> ${JSON.stringify(isExist)}`)
         if (!isExist.status) {

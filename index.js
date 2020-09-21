@@ -5,7 +5,6 @@ const args = require('minimist')(process.argv.slice(2));
 const bodyParser = require('body-parser')
 const express = require('express')
 const env = process.env.NODE_ENV || 'development'
-
 const app = express()
 
 process.env.TZ = 'Asia/Jakarta'
@@ -43,6 +42,7 @@ logging.init({
 })
 
 logging.info(`[CONFIG] ${JSON.stringify(iniParser.get())}`)
+const userChecking = require('./controllers/middleware')
 
 app.use(bodyParser.urlencoded({
     extended: true
@@ -63,6 +63,16 @@ app.use(function(err, req, res, next) {
     }
 });
 
+
+/**
+ * [middleware]
+ * @param  {[type]}   req  [description]
+ * @param  {[type]}   res  [description]
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
+// auth.checkAuthorization
+app.use(userChecking)
 
 const routes = require('./router/router');
 routes(app);
