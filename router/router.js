@@ -31,6 +31,13 @@ module.exports = function(app) {
      app.route('/api/task/forever/:is')
      .get(task.getForeverToday)
 
+     app.route('/api/task/:name')
+     .get(task.getTaskByName)
+
+     app.route('/api/task/detail/:id')
+     .get(task.getTaskById)
+
+
     app.get('/api/ping', function (req, res) {
         res.status(200).json("How are you? i`m Fine. Thanks ")
     })

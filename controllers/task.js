@@ -58,8 +58,8 @@ async function create_task(req, res) {
             updated_at: util.formatDateStandard(new Date(), true)
         }
         if (body.is_forever === 1) {
-            delete _data.start_at
-            delete _data.end_at
+            // delete _data.start_at
+            // delete _data.end_at
             _data.date_forever = {
                 at_time: body.data_forever.at_time,
                 at_date: body.data_forever.at_date,
@@ -71,8 +71,8 @@ async function create_task(req, res) {
         let storeTask = await db.createTask(_data)
         logging.debug(`[storeTask] >>>> ${JSON.stringify(storeTask)}`)
 
-        respons = {status: true, message: "Success", data: isExistTask}
-        // respons = {status: true, message: "Success", data: storeTask}
+        // respons = {status: true, message: "Success", data: isExistTask}
+        respons = {status: true, message: "Success", data: storeTask}
         res.status(200).send(respons)
     } catch (e) {
         logging.debug(`[create_task][err]   >>>>> ${e.stack}`)
@@ -104,7 +104,7 @@ async function getTaskToday(req, res) {
         respons = {status: true, message: "Success", data: newData}
         res.status(200).send(respons)
     } catch (e) {
-        logging.debug(`[register][err]   >>>>> ${e.stack}`)
+        logging.debug(`[getTaskToday][err]   >>>>> ${e.stack}`)
         res.status(400).send(respons)
     }
 }
@@ -126,12 +126,56 @@ async function getTaskFilterForeverinToday(req, res) {
             return res.status(404).send(respons)
         }
         let newData = await remapingData(getTaskToday)
-        logging.debug(`[getTaskToday] >>>> ${JSON.stringify(newData)}`)
+        logging.debug(`[getTaskFilterForeverinToday] >>>> ${JSON.stringify(newData)}`)
 
         respons = {status: true, message: "Success", data: newData}
         res.status(200).send(respons)
     } catch (e) {
-        logging.debug(`[register][err]   >>>>> ${e.stack}`)
+        logging.debug(`[getTaskFilterForeverinToday][err]   >>>>> ${e.stack}`)
+        res.status(400).send(respons)
+    }
+}
+
+//get task by task name's
+async function getTaskByName(req, res) {
+    let respons = {status: false, message: "No data Found", data: []}
+    try {
+        let user = user_util.getUserInfo(req)
+        console.log(req.params);
+
+        let getTaskToday = await db.getTaskByName(user.id, req.params.name)
+        if (getTaskToday.length == 0) {
+            return res.status(404).send(respons)
+        }
+        let newData = await remapingData(getTaskToday)
+        logging.debug(`[getTaskByName] >>>> ${JSON.stringify(newData)}`)
+
+        respons = {status: true, message: "Success", data: newData}
+        res.status(200).send(respons)
+    } catch (e) {
+        logging.debug(`[getTaskByName][err]   >>>>> ${e.stack}`)
+        res.status(400).send(respons)
+    }
+}
+
+//get task by task id's
+async function getTaskById(req, res) {
+    let respons = {status: false, message: "No data Found", data: []}
+    try {
+        let user = user_util.getUserInfo(req)
+        console.log(req.params);
+
+        let getTaskToday = await db.getTaskById(user.id, req.params.id)
+        if (getTaskToday.length == 0) {
+            return res.status(404).send(respons)
+        }
+        let newData = await remapingData(getTaskToday)
+        logging.debug(`[getTaskById] >>>> ${JSON.stringify(newData)}`)
+
+        respons = {status: true, message: "Success", data: newData}
+        res.status(200).send(respons)
+    } catch (e) {
+        logging.debug(`[getTaskById][err]   >>>>> ${e.stack}`)
         res.status(400).send(respons)
     }
 }
@@ -172,11 +216,11 @@ function remapingData(array) {
     // return Promise.resolve(result);
 }
 
-
-
 module.exports = {
     create: create_task,
     update: update_task,
     getToday: getTaskToday,
-    getForeverToday: getTaskFilterForeverinToday
+    getForeverToday: getTaskFilterForeverinToday,
+    getTaskByName: getTaskByName,
+    getTaskById: getTaskById
 };

@@ -1,5 +1,6 @@
 const iniParser = require('../libs/iniParser')
 const logging = require('../libs/logging')
+const util = require('../libs/utils')
 const db = require('../models/api-db')
 const Sequelize = require('sequelize');
 
@@ -175,6 +176,70 @@ function get_task_by_(user_id, opt = []) {
     })
 }
 
+function get_task_by_name(user_id, name, opt = []) {
+    if (opt.length == 0) {
+        opt = [0,1]
+    }
+    return new Promise(async function (resolve, reject) {
+        Task.findAll({
+            where: {
+                status: { [Op.in]: [0, 1, 2]},
+                forever: { [Op.in]: opt},
+                user_id: user_id,
+                name: name
+            },
+            include: [
+                {
+                    attributes: ['username','name'],
+                    model: User
+                }
+            ],
+            order: [['id', 'DESC']],
+            raw: true,
+            nest: true,
+        })
+        .then(function (data) {
+            if (data.length != 0) resolve(data)
+        })
+        .catch(function (err) {
+            logging.error(`[get_task_by_name][err] >>>> ${JSON.stringify(err.stack)}`)
+            if (err) reject(false)
+        })
+    })
+}
+
+function get_task_by_id(user_id, id, opt = []) {
+    if (opt.length == 0) {
+        opt = [0,1]
+    }
+    return new Promise(async function (resolve, reject) {
+        Task.findAll({
+            where: {
+                status: { [Op.in]: [0, 1, 2]},
+                forever: { [Op.in]: opt},
+                user_id: user_id,
+                id: parseInt(id)
+            },
+            include: [
+                {
+                    attributes: ['username','name'],
+                    model: User
+                }
+            ],
+            order: [['id', 'DESC']],
+            raw: true,
+            nest: true,
+        })
+        .then(function (data) {
+            if (data.length != 0) resolve(data)
+        })
+        .catch(function (err) {
+            logging.error(`[get_task_by_id][err] >>>> ${JSON.stringify(err.stack)}`)
+            if (err) reject(false)
+        })
+    })
+}
+
 function check_task_exist(user_id, date) {
     return new Promise(function (resolve, reject) {
         Task.findAll({
@@ -215,5 +280,7 @@ module.exports = {
     createTask: create_task,
     updateTask: update_task,
     getTaskToday: get_task_by_,
-    checkExistTask: check_task_exist
+    checkExistTask: check_task_exist,
+    getTaskByName: get_task_by_name,
+    getTaskById: get_task_by_id
 };
