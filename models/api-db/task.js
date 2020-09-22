@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
 		end_at: {
 			type: DataTypes.DATE,
 			get(){
+                console.log(util.formatDateStandard(this.getDataValue('end_at'), true));
 				return util.formatDateStandard(this.getDataValue('end_at'), true)
 			}
 		},
@@ -33,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
 				return util.formatDateStandard(this.getDataValue('created_at'), true)
 			}
 		},
-		forever: DataTypes.TINYINT,
+		forever: DataTypes.INTEGER,
 		date_forever: {
 			type: DataTypes.TEXT,
 			// get() {
@@ -51,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
 				return util.formatDateStandard(this.getDataValue('updated_at'), true)
 			}
 		},
-        status: DataTypes.TINYINT
+        status: DataTypes.INTEGER
     }, {
         tableName: 'tasks',
         timestamps: false,

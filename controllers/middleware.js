@@ -12,7 +12,7 @@ const db = require('./dbController')
  */
 
 let config = iniParser.get()
-console.log(config);
+
 async function verifyToken(req, res, next) {
     const authHeader = req.headers.authorization;
     try {

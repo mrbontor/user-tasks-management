@@ -7,7 +7,6 @@
 	"required": [
 		"name",
 		"description",
-		"user_id",
 		"start_at",
 		"is_forever",
 		"end_at"

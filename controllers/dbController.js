@@ -1,10 +1,10 @@
 const iniParser = require('../libs/iniParser')
 const logging = require('../libs/logging')
 const db = require('../models/api-db')
+const Sequelize = require('sequelize');
 
 const User = db.User
 const Task = db.Task
-const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 /**
  * [user model query]
@@ -140,7 +140,7 @@ function get_task_by_(user_id, opt = []) {
     if (opt.length == 0) {
         opt = [0,1]
     }
-    return new Promise(function (resolve, reject) {
+    return new Promise(async function (resolve, reject) {
         Task.findAll({
             where: {
                 status: { [Op.in]: [0, 1, 2]},
@@ -152,28 +152,26 @@ function get_task_by_(user_id, opt = []) {
                         // Sequelize.fn('DATE', Sequelize.col('start_at')), {
                             //     [Op.gt] : date
                             // }
-                        )
-                    ]
-                },
-                include: [
-                    {
-                        attributes: ['username','name'],
-                        model: User
-                    }
-                ],
-                order: [['id', 'DESC']],
-                raw: true,
-                nest: true,
-            })
-            .then(function (data) {
-
-                if (data !== null) resolve(data)
-                console.log(JSON.stringify(data));
-            })
-            .catch(function (err) {
-                logging.error(`[get_user][err] >>>> ${JSON.stringify(err.stack)}`)
-                if (err) reject(false)
-            })
+                    )
+                ]
+            },
+            include: [
+                {
+                    attributes: ['username','name'],
+                    model: User
+                }
+            ],
+            order: [['id', 'DESC']],
+            raw: true,
+            nest: true,
+        })
+        .then(function (data) {
+            if (data.length != 0) resolve(data)
+        })
+        .catch(function (err) {
+            logging.error(`[get_task_by_][err] >>>> ${JSON.stringify(err.stack)}`)
+            if (err) reject(false)
+        })
     })
 }
 
@@ -184,28 +182,27 @@ function check_task_exist(user_id, date) {
                 status: { [Op.in]: [0, 1, 2]},
                 user_id: user_id,
                 [Op.and] : [
-                        { end_date: { [ Op.gte ]: start_time } },
-                        { end_date: { [ Op.lte ]: end_time } }
-                    ]
-                },
-                include: [
-                    {
-                        attributes: ['username','name'],
-                        model: User
-                    }
-                ],
-                order: [['id', 'DESC']],
-                raw: true,
-                nest: true,
-            })
-            .then(function (data) {
-
-                if (data !== null) resolve(data)
-            })
-            .catch(function (err) {
-                logging.error(`[get_user][err] >>>> ${JSON.stringify(err.stack)}`)
-                if (err) reject(false)
-            })
+                    { end_at: { [ Op.gte ]: date.start_at } },
+                    { end_at: { [ Op.lte ]: date.end_at } }
+                ]
+            },
+            include: [
+                {
+                    attributes: ['username','name'],
+                    model: User
+                }
+            ],
+            order: [['id', 'DESC']],
+            raw: true,
+            nest: true,
+        })
+        .then(function (data) {
+            resolve(data)
+        })
+        .catch(function (err) {
+            logging.error(`[check_task_exist][err] >>>> ${JSON.stringify(err.stack)}`)
+            if (err) reject(false)
+        })
     })
 }
 
@@ -217,5 +214,6 @@ module.exports = {
     updateUser: update_user,
     createTask: create_task,
     updateTask: update_task,
-    getTaskToday: get_task_by_
+    getTaskToday: get_task_by_,
+    checkExistTask: check_task_exist
 };
